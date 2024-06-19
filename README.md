@@ -1,8 +1,16 @@
-# dua-template
+# go2_stack
 
-GitHub template repositories for projects based on the Distributed Unified Architecture.
+Unitree Go2 robot software stack.
 
-See [`dua-template.md`](dua-template.md) for more information.
+Based on the [Distributed Unified Architecture](dua-template.md).
+
+## Contents
+
+TODO
+
+## Usage
+
+TODO
 
 ---
 
