@@ -6,7 +6,8 @@ Based on the [Distributed Unified Architecture](dua-template.md).
 
 ## Contents
 
-TODO
+- [x] [`unitree_api`](src/unitree_api/) Unitree robot API interfaces.
+- [x] [`unitree_go`](src/unitree_go/) Unitree Go robot interfaces.
 
 ## Usage
 

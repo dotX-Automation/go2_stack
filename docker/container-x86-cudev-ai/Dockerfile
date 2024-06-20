@@ -29,6 +29,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # go2_stack START #
 # Install and configure Cyclone DDS RMW
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  ros-humble-rosidl-generator-dds-idl \
   ros-humble-rmw-cyclonedds-cpp && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*/apt/lists/*
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
