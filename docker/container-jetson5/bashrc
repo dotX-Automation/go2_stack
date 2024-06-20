@@ -140,4 +140,7 @@ fi
 export EDITOR=/usr/bin/nano
 
 # Configure network interfaces for Cyclone DDS
-export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="eth0" priority="default"/><NetworkInterface name="wlan0"/></Interfaces></General></Domain></CycloneDDS>'
+export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces>
+                         <NetworkInterface name="eth0" priority="default" multicast="true"/>
+                         <NetworkInterface name="wlan0" priority="default" multicast="true"/>
+                       </Interfaces></General></Domain></CycloneDDS>'

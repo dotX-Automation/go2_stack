@@ -135,7 +135,10 @@ source ~/.commands.sh
 source ~/.ros2.sh && ros2init && eval "$(register-python-argcomplete3 ros2)"
 
 # Configure network interfaces for Cyclone DDS
-export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="eth0" priority="default"/><NetworkInterface name="wlan0"/></Interfaces></General></Domain></CycloneDDS>'
+export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces>
+                         <NetworkInterface name="eth0" priority="default" multicast="true"/>
+                         <NetworkInterface name="wlan0" priority="default" multicast="true"/>
+                       </Interfaces></General></Domain></CycloneDDS>'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

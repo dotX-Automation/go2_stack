@@ -55,7 +55,7 @@ function utils-update {
 function cyclonedds-configure {
   local cyclonedds_uri='<CycloneDDS><Domain><General><Interfaces>'
   for interface in "$@"; do
-    cyclonedds_uri+="<NetworkInterface name=\"$interface\"/>"
+    cyclonedds_uri+="<NetworkInterface name=\"$interface\" priority=\"default\" multicast=\"true\"/>"
   done
   cyclonedds_uri+='</Interfaces></General></Domain></CycloneDDS>'
   export CYCLONEDDS_URI="$cyclonedds_uri"
