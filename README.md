@@ -6,6 +6,7 @@ Based on the [Distributed Unified Architecture](dua-template.md).
 
 ## Contents
 
+- [x] [`go2_tester`](src/go2_tester/) Unitree Go2 robot API tester.
 - [x] [`unitree_api`](src/unitree_api/) Unitree robot API interfaces.
 - [x] [`unitree_go`](src/unitree_go/) Unitree Go robot interfaces.
 
