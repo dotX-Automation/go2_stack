@@ -22,6 +22,8 @@ ROBOT_SPORT_API_ID_STANDUP = 1004
 ROBOT_SPORT_API_ID_STANDDOWN = 1005
 ROBOT_SPORT_API_ID_CONTINUOUSGAIT = 1019
 ROBOT_SPORT_API_ID_DAMP = 1001
+ROBOT_SPORT_API_ID_HEART = 1036
+ROBOT_SPORT_API_ID_HELLO = 1016
 
 
 class Go2Tester(Node):
@@ -137,3 +139,27 @@ class Go2Tester(Node):
         self._sport_req_pub.publish(req)
         self.get_logger().warning(
             f'Sent RECOVERYSTAND request ({req.header.identity.id})')
+
+    def heart(self) -> None:
+        req = Request()
+
+        # Build request header
+        req.header.identity.id = int(time.clock_gettime(time.CLOCK_REALTIME))
+        req.header.identity.api_id = ROBOT_SPORT_API_ID_HEART
+
+        # Publish request
+        self._sport_req_pub.publish(req)
+        self.get_logger().warning(
+            f'Sent HEART request ({req.header.identity.id})')
+
+    def hello(self) -> None:
+        req = Request()
+
+        # Build request header
+        req.header.identity.id = int(time.clock_gettime(time.CLOCK_REALTIME))
+        req.header.identity.api_id = ROBOT_SPORT_API_ID_HELLO
+
+        # Publish request
+        self._sport_req_pub.publish(req)
+        self.get_logger().warning(
+            f'Sent HELLO request ({req.header.identity.id})')
