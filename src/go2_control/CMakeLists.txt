@@ -68,6 +68,7 @@ ament_target_dependencies(go2_control
   rclcpp_components
   sensor_msgs
   std_msgs
+  std_srvs
   tf2
   tf2_eigen
   tf2_ros
