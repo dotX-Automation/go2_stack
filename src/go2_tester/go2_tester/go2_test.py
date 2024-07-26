@@ -20,15 +20,14 @@ def main():
 
     # Send test requests
     time.sleep(1.0)
-    node.heart()
-    # node.hello()
-    # node.standdown()
-    # time.sleep(3.0)
-    # node.standup()
-    # time.sleep(3.0)
-    # node.standdown()
-    # time.sleep(3.0)
-    # node.recoverystand()
+    node.hello()
+    node.standdown()
+    time.sleep(3.0)
+    node.standup()
+    time.sleep(3.0)
+    node.standdown()
+    time.sleep(3.0)
+    node.recoverystand()
 
     # init_time = time.time()
     # while True:
