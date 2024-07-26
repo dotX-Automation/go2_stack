@@ -37,7 +37,11 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 WORKDIR /opt
 RUN git clone --single-branch --branch 'main' --depth 1 https://github.com/unitreerobotics/unitree_sdk2.git && \
   cd unitree_sdk2 && \
-  ./install.sh && \
+  mkdir build && \
+  cd build && \
+  cmake -DCMAKE_BUILD_TYPE=RelWithDebugInfo -DBUILD_EXAMPLES=OFF .. && \
+  make install && \
+  cd ../.. && \
   chgrp -R internal /opt/unitree_sdk2 && \
   chmod -R g+rw /opt/unitree_sdk2
 WORKDIR /root
