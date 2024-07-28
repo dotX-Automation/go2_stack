@@ -1,0 +1,26 @@
+/go2/go2_control:
+  ros__parameters:
+    frame_prefix: ''
+    imu_covariance:
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    kill_switch_code: 48
+    kill_switch_release_code: 35
+    operations_stabilization_time: 1000
+    operations_timeout: 500
+    pointcloud_deskewed: true
+    pose_covariance:
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    publish_tf: true

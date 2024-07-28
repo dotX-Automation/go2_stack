@@ -26,6 +26,7 @@ find_package(dua_qos_cpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(params_manager REQUIRED)
+find_package(pose_kit REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -63,12 +64,12 @@ ament_target_dependencies(go2_control
   geometry_msgs
   image_transport
   params_manager
+  pose_kit
   rclcpp
   rclcpp_action
   rclcpp_components
   sensor_msgs
   std_msgs
-  std_srvs
   tf2
   tf2_eigen
   tf2_ros

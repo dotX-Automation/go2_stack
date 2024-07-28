@@ -1,0 +1,94 @@
+header_include_path: go2_control/go2_control.hpp
+namespace: go2_control
+node_class_name: Go2Control
+
+params:
+  frame_prefix:
+    type: string
+    default_value: ''
+    description: "Prefix for the frame names of the robot."
+    constraints: "Must include the last trailing slash."
+    read_only: true
+    var_name: frame_prefix_
+
+  kill_switch_code:
+    type: integer
+    default_value: 48
+    min_value: 0
+    max_value: 255
+    step: 1
+    description: "Wireless controller kill switch button code."
+    constraints: "Must be a valid button code."
+    read_only: false
+    var_name: kill_switch_code_
+
+  kill_switch_release_code:
+    type: integer
+    default_value: 35
+    min_value: 0
+    max_value: 255
+    step: 1
+    description: "Wireless controller kill switch release button code."
+    constraints: "Must be a valid button code."
+    read_only: false
+    var_name: kill_switch_release_code_
+
+  operations_stabilization_time:
+    type: integer
+    default_value: 1000
+    min_value: 1
+    max_value: 5000
+    step: 1
+    description: "Time to wait for the robot to stabilize after operations [ms]."
+    constraints: "Must be a positive integer."
+    read_only: false
+    var_name: operations_stabilization_time_
+
+  operations_timeout:
+    type: integer
+    default_value: 500
+    min_value: 1
+    max_value: 1000
+    step: 1
+    description: "Timeout for operations requested to the robot [ms]."
+    constraints: "Must be a positive integer."
+    read_only: false
+    var_name: operations_timeout_
+
+  pointcloud_deskewed:
+    type: bool
+    default_value: true
+    description: "Use deskewed pointcloud."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: pointcloud_deskewed_
+
+  publish_tf:
+    type: bool
+    default_value: true
+    description: "Publish TF."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: publish_tf_
+
+  pose_covariance:
+    type: double_array
+    default_value: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+    min_value: 0.0
+    max_value: 1000.0
+    step: 0.0
+    description: "Covariances for pose variables."
+    constraints: "Must be valid covariance values."
+    read_only: false
+    validator: validate_pose_covariance
+
+  imu_covariance:
+    type: double_array
+    default_value: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+    min_value: 0.0
+    max_value: 1000.0
+    step: 0.0
+    description: "Covariances for IMU variables."
+    constraints: "Must be valid covariance values."
+    read_only: false
+    validator: validate_imu_covariance

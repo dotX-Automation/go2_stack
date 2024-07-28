@@ -60,3 +60,13 @@ function cyclonedds-configure {
   cyclonedds_uri+='</Interfaces></General></Domain></CycloneDDS>'
   export CYCLONEDDS_URI="$cyclonedds_uri"
 }
+
+# Arms the robot
+function arm {
+  ros2 action send_goal -f "$NAMESPACE"/go2_control/arm dua_interfaces/action/Arm "{}"
+}
+
+# Disarms the robot
+function disarm {
+  ros2 action send_goal -f "$NAMESPACE"/go2_control/disarm dua_interfaces/action/Disarm "{}"
+}
