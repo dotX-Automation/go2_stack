@@ -1,8 +1,6 @@
 """
 Unitree Go2 single-robot description launch file.
 
-Roberto Masocco <r.masocco@dotxautomation.com>
-
 July 26, 2024
 """
 
