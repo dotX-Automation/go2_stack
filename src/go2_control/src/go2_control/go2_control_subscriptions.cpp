@@ -58,8 +58,8 @@ void Go2Control::cmd_vel_callback(const Twist::SharedPtr msg)
  */
 void Go2Control::foot_position_callback(const PointCloud2::SharedPtr msg)
 {
-  // TODO Check frame ID and timestamp
   PointCloud2 foot_position_msg = *msg;
+  foot_position_msg.header.frame_id = local_frame_;
   foot_position_pub_->publish(foot_position_msg);
 }
 
@@ -95,8 +95,8 @@ void Go2Control::lowstate_callback(const LowState::SharedPtr msg)
  */
 void Go2Control::point_cloud_callback(const PointCloud2::SharedPtr msg)
 {
-  // TODO Check frame ID and timestamp
   PointCloud2 point_cloud_msg = *msg;
+  point_cloud_msg.header.frame_id = frame_prefix_ + point_cloud_msg.header.frame_id;
   point_cloud_pub_->publish(point_cloud_msg);
 }
 
@@ -107,16 +107,17 @@ void Go2Control::point_cloud_callback(const PointCloud2::SharedPtr msg)
  */
 void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
 {
-  // TODO Check frame ID and timestamp
   // Store robot pose
+  PoseStamped pose_msg_curr = *msg;
+  pose_msg_curr.header.frame_id = local_frame_;
   state_lock_.lock();
-  pose_ = pose_kit::Pose(*msg);
+  pose_ = pose_kit::Pose(pose_msg_curr);
   state_lock_.unlock();
 
   // Republish the pose with covariance
   PoseWithCovarianceStamped pose_msg{};
-  pose_msg.set__header(msg->header);
-  pose_msg.pose.set__pose(msg->pose);
+  pose_msg.set__header(pose_msg_curr.header);
+  pose_msg.pose.set__pose(pose_msg_curr.pose);
   pose_msg.pose.pose.position.set__z(pose_msg.pose.pose.position.z + 0.07);
   int j = 0;
   for (int i = 0; i < 6; i++) {
@@ -128,12 +129,12 @@ void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
   // Publish the tf
   if (publish_tf_) {
     TransformStamped tf_msg{};
-    tf_msg.set__header(msg->header);
+    tf_msg.set__header(pose_msg_curr.header);
     tf_msg.set__child_frame_id(body_frame_);
-    tf_msg.transform.translation.set__x(msg->pose.position.x);
-    tf_msg.transform.translation.set__y(msg->pose.position.y);
-    tf_msg.transform.translation.set__z(msg->pose.position.z + 0.07);
-    tf_msg.transform.set__rotation(msg->pose.orientation);
+    tf_msg.transform.translation.set__x(pose_msg_curr.pose.position.x);
+    tf_msg.transform.translation.set__y(pose_msg_curr.pose.position.y);
+    tf_msg.transform.translation.set__z(pose_msg_curr.pose.position.z + 0.07);
+    tf_msg.transform.set__rotation(pose_msg_curr.pose.orientation);
     tf_broadcaster_->sendTransform(tf_msg);
   }
 }
@@ -168,16 +169,15 @@ void Go2Control::sportmode_state_callback(const SportModeState::SharedPtr msg)
   }
 
   // Parse and publish IMU data
-  // TODO Check quaternion components order
   Imu imu_msg{};
   int j;
   imu_msg.header.set__stamp(this->get_clock()->now());
   imu_msg.header.set__frame_id(frame_prefix_ + "imu");
 
-  imu_msg.orientation.set__x(msg->imu_state.quaternion[0]);
-  imu_msg.orientation.set__y(msg->imu_state.quaternion[1]);
-  imu_msg.orientation.set__z(msg->imu_state.quaternion[2]);
-  imu_msg.orientation.set__w(msg->imu_state.quaternion[3]);
+  imu_msg.orientation.set__w(msg->imu_state.quaternion[0]);
+  imu_msg.orientation.set__x(msg->imu_state.quaternion[1]);
+  imu_msg.orientation.set__y(msg->imu_state.quaternion[2]);
+  imu_msg.orientation.set__z(msg->imu_state.quaternion[3]);
   j = 0;
   for (int i = 0; i < 3; i++) {
     imu_msg.orientation_covariance[i + j * 3] = imu_covariance_[i];
