@@ -118,7 +118,7 @@ void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
   PoseWithCovarianceStamped pose_msg{};
   pose_msg.set__header(pose_msg_curr.header);
   pose_msg.pose.set__pose(pose_msg_curr.pose);
-  pose_msg.pose.pose.position.set__z(pose_msg.pose.pose.position.z + 0.07);
+  pose_msg.pose.pose.position.set__z(pose_msg.pose.pose.position.z);
   int j = 0;
   for (int i = 0; i < 6; i++) {
     pose_msg.pose.covariance[i + j * 6] = pose_covariance_[i];
@@ -133,7 +133,7 @@ void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
     tf_msg.set__child_frame_id(body_frame_);
     tf_msg.transform.translation.set__x(pose_msg_curr.pose.position.x);
     tf_msg.transform.translation.set__y(pose_msg_curr.pose.position.y);
-    tf_msg.transform.translation.set__z(pose_msg_curr.pose.position.z + 0.07);
+    tf_msg.transform.translation.set__z(pose_msg_curr.pose.position.z);
     tf_msg.transform.set__rotation(pose_msg_curr.pose.orientation);
     tf_broadcaster_->sendTransform(tf_msg);
   }

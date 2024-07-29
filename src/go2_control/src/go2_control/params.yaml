@@ -48,7 +48,7 @@ params:
     type: integer
     default_value: 500
     min_value: 1
-    max_value: 1000
+    max_value: 5000
     step: 1
     description: "Timeout for operations requested to the robot [ms]."
     constraints: "Must be a positive integer."

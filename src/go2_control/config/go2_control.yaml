@@ -11,10 +11,10 @@
     - 0.01
     - 0.01
     - 0.01
-    kill_switch_code: 48
-    kill_switch_release_code: 35
+    kill_switch_code: 16
+    kill_switch_release_code: 32
     operations_stabilization_time: 1000
-    operations_timeout: 500
+    operations_timeout: 1500
     pointcloud_deskewed: true
     pose_covariance:
     - 0.01
