@@ -210,7 +210,7 @@ void Go2Control::init_publishers()
 
   // joint_states
   joint_states_pub_ = this->create_publisher<JointState>(
-    "/joint_states",
+    "~/joint_states",
     dua_qos::Reliable::get_datum_qos());
 
   // point_cloud
