@@ -24,3 +24,5 @@
     - 0.01
     - 0.01
     publish_tf: true
+    velocity_control_vhorz_max: 2.0
+    velocity_control_vyaw_max: 1.5
