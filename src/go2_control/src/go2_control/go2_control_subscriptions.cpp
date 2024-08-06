@@ -33,7 +33,22 @@ namespace go2_control
 void Go2Control::cmd_vel_callback(const Twist::SharedPtr msg)
 {
   // Check if we can execute
+  if (!armed_.load(std::memory_order_acquire)) {
+    return;
+  }
+
+  // Check kill switch, if engaged publish zero velocity setpoint to reactively stop the robot
   if (kill_switch_.load(std::memory_order_acquire)) {
+    nlohmann::json stop_j = {
+      {"x", 0.0},
+      {"y", 0.0},
+      {"z", 0.0}};
+
+    Request stop_req{};
+    stop_req.header.identity.set__id(this->get_clock()->now().nanoseconds());
+    stop_req.header.identity.set__api_id(unitree::robot::go2::ROBOT_SPORT_API_ID_MOVE);
+    stop_req.set__parameter(stop_j.dump());
+    sport_request_pub_->publish(stop_req);
     return;
   }
 
@@ -73,18 +88,20 @@ void Go2Control::lowstate_callback(const LowState::SharedPtr msg)
   // Joint state
   JointState joint_state_msg{};
   joint_state_msg.header.set__stamp(this->get_clock()->now());
-  joint_state_msg.set__name({
-    "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
-    "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
-    "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint",
-    "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
-  });
-  joint_state_msg.set__position({
-    msg->motor_state[3].q, msg->motor_state[4].q,  msg->motor_state[5].q,
-    msg->motor_state[0].q, msg->motor_state[1].q,  msg->motor_state[2].q,
-    msg->motor_state[9].q, msg->motor_state[10].q, msg->motor_state[11].q,
-    msg->motor_state[6].q, msg->motor_state[7].q,  msg->motor_state[8].q,
-  });
+  joint_state_msg.set__name(
+    {
+      "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
+      "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
+      "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint",
+      "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
+    });
+  joint_state_msg.set__position(
+    {
+      msg->motor_state[3].q, msg->motor_state[4].q, msg->motor_state[5].q,
+      msg->motor_state[0].q, msg->motor_state[1].q, msg->motor_state[2].q,
+      msg->motor_state[9].q, msg->motor_state[10].q, msg->motor_state[11].q,
+      msg->motor_state[6].q, msg->motor_state[7].q, msg->motor_state[8].q,
+    });
   joint_states_pub_->publish(joint_state_msg);
 }
 
@@ -151,9 +168,16 @@ void Go2Control::sportmode_state_callback(const SportModeState::SharedPtr msg)
     sportmode_last_ = msg->mode;
 
     if (msg->mode == static_cast<uint8_t>(SportMode::STANDING)) {
-      armed_.store(true, std::memory_order_release);
-      notify_sportmode_state();
-      RCLCPP_WARN(this->get_logger(), "Robot ARMED");
+      bool expected = false;
+      if (armed_.compare_exchange_strong(
+          expected,
+          true,
+          std::memory_order_release,
+          std::memory_order_acquire))
+      {
+        notify_sportmode_state();
+        RCLCPP_WARN(this->get_logger(), "Robot ARMED");
+      }
     } else if (msg->mode == static_cast<uint8_t>(SportMode::RECOVERYSTAND)) {
       RCLCPP_INFO(this->get_logger(), "RECOVERY STAND");
     } else if (msg->mode == static_cast<uint8_t>(SportMode::STANDUP)) {
@@ -162,9 +186,16 @@ void Go2Control::sportmode_state_callback(const SportModeState::SharedPtr msg)
       notify_sportmode_state();
       RCLCPP_INFO(this->get_logger(), "STAND DOWN");
     } else if (msg->mode == static_cast<uint8_t>(SportMode::DAMP)) {
-      armed_.store(false, std::memory_order_release);
-      notify_sportmode_state();
-      RCLCPP_WARN(this->get_logger(), "Robot DISARMED");
+      bool expected = true;
+      if (armed_.compare_exchange_strong(
+          expected,
+          false,
+          std::memory_order_release,
+          std::memory_order_acquire))
+      {
+        notify_sportmode_state();
+        RCLCPP_WARN(this->get_logger(), "Robot DISARMED");
+      }
     }
   }
 
