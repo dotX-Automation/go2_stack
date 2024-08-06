@@ -39,7 +39,11 @@ Go2Control::Go2Control(const rclcpp::NodeOptions & node_options)
   init_subscriptions();
   init_tf2();
   init_publishers();
+  init_services();
   init_actions();
+
+  // Set obstacle avoidance
+  set_obstacle_avoidance(this->get_parameter("init_obstacle_avoidance").as_bool());
 
   RCLCPP_INFO(this->get_logger(), "Node initialized");
 }
@@ -227,6 +231,11 @@ void Go2Control::init_publishers()
     "~/joint_states",
     dua_qos::Reliable::get_datum_qos());
 
+  // obstacles_avoid_request
+  obstacle_avoidance_request_pub_ = this->create_publisher<Request>(
+    "/api/obstacles_avoid/request",
+    dua_qos::Reliable::get_datum_qos());
+
   // odometry
   odom_pub_ = this->create_publisher<Odometry>(
     "~/odometry",
@@ -246,6 +255,21 @@ void Go2Control::init_publishers()
   sport_request_pub_ = this->create_publisher<Request>(
     "/api/sport/request",
     dua_qos::Reliable::get_datum_qos());
+}
+
+/**
+ * @brief Routine to initialize service servers.
+ */
+void Go2Control::init_services()
+{
+  // obstacle_avoidance
+  obstacle_avoidance_srv_ = this->create_service<SetBool>(
+    "~/obstacle_avoidance",
+    std::bind(
+      &Go2Control::obstacle_avoidance_callback,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2));
 }
 
 /**

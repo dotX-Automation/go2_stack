@@ -46,6 +46,26 @@ void Go2Control::notify_sportmode_state()
 }
 
 /**
+ * @brief Sets the onboard obstacle avoidance state.
+ *
+ * @param state New state to set.
+ */
+void Go2Control::set_obstacle_avoidance(bool state)
+{
+  Request obs_avoidance_req{};
+  obs_avoidance_req.header.identity.set__id(this->get_clock()->now().nanoseconds());
+  obs_avoidance_req.header.identity.set__api_id(
+    unitree::robot::go2::ROBOT_API_ID_OBSTACLES_AVOID_SWITCH_SET);
+
+  nlohmann::json obs_avoidance_j = {{"enable", state}};
+  obs_avoidance_req.set__parameter(obs_avoidance_j.dump());
+
+  obstacle_avoidance_request_pub_->publish(obs_avoidance_req);
+
+  RCLCPP_INFO(this->get_logger(), "Obstacle avoidance %s", state ? "activated" : "deactivated");
+}
+
+/**
  * @brief Validates the pose_covariance parameter.
  *
  * @param p Parameter to validate.

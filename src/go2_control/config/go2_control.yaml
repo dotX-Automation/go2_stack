@@ -11,6 +11,7 @@
     - 0.01
     - 0.01
     - 0.01
+    init_obstacle_avoidance: true
     kill_switch_code: 16
     kill_switch_release_code: 32
     operations_stabilization_time: 1000

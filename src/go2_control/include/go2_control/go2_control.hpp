@@ -33,6 +33,7 @@
 #include <thread>
 #include <vector>
 
+#include <unitree/robot/go2/obstacles_avoid/obstacles_avoid_api.hpp>
 #include <unitree/robot/go2/sport/sport_api.hpp>
 
 #include <nlohmann/json.hpp>
@@ -63,6 +64,8 @@
 #include <unitree_go/msg/sport_mode_state.hpp>
 #include <unitree_go/msg/wireless_controller.hpp>
 
+#include <std_srvs/srv/set_bool.hpp>
+
 #include <dua_interfaces/action/arm.hpp>
 #include <dua_interfaces/action/disarm.hpp>
 
@@ -73,6 +76,8 @@ using namespace sensor_msgs::msg;
 using namespace std_msgs::msg;
 using namespace unitree_api::msg;
 using namespace unitree_go::msg;
+
+using namespace std_srvs::srv;
 
 using namespace dua_interfaces::action;
 
@@ -115,6 +120,7 @@ private:
   void init_subscriptions();
   void init_tf2();
   void init_publishers();
+  void init_services();
   void init_actions();
 
   /* TF2 data. */
@@ -156,10 +162,19 @@ private:
   rclcpp::Publisher<PointCloud2>::SharedPtr foot_position_pub_;
   rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::Publisher<JointState>::SharedPtr joint_states_pub_;
+  rclcpp::Publisher<Request>::SharedPtr obstacle_avoidance_request_pub_;
   rclcpp::Publisher<Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<PointCloud2>::SharedPtr point_cloud_pub_;
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Request>::SharedPtr sport_request_pub_;
+
+  /* Service clients. */
+  rclcpp::Service<SetBool>::SharedPtr obstacle_avoidance_srv_;
+
+  /* Service callbacks. */
+  void obstacle_avoidance_callback(
+    SetBool::Request::SharedPtr req,
+    SetBool::Response::SharedPtr resp);
 
   /* Action servers. */
   rclcpp_action::Server<Arm>::SharedPtr arm_server_;
@@ -221,6 +236,7 @@ private:
 
   /* Auxiliary routines. */
   void notify_sportmode_state();
+  void set_obstacle_avoidance(bool state);
 };
 
 } // go2_control
