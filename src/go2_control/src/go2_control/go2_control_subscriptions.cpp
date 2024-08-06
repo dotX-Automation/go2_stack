@@ -52,11 +52,17 @@ void Go2Control::cmd_vel_callback(const Twist::SharedPtr msg)
     return;
   }
 
+  // Saturate velocities
+  double v_x = fmin(fmax(msg->linear.x, -velocity_control_vhorz_max_), velocity_control_vhorz_max_);
+  double v_y = fmin(fmax(msg->linear.y, -velocity_control_vhorz_max_), velocity_control_vhorz_max_);
+  double v_yaw =
+    fmin(fmax(msg->angular.z, -velocity_control_vyaw_max_), velocity_control_vyaw_max_);
+
   // Build the velocity setpoint
   nlohmann::json cmd_vel_j = {
-    {"x", msg->linear.x},
-    {"y", msg->linear.y},
-    {"z", msg->angular.z}};
+    {"x", v_x},
+    {"y", v_y},
+    {"z", v_yaw}};
 
   // Build and publish the API request
   Request cmd_vel_req{};

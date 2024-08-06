@@ -11,6 +11,17 @@ params:
     read_only: true
     var_name: frame_prefix_
 
+  imu_covariance:
+    type: double_array
+    default_value: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+    min_value: 0.0
+    max_value: 1000.0
+    step: 0.0
+    description: "Covariances for IMU variables."
+    constraints: "Must be valid covariance values."
+    read_only: false
+    validator: validate_imu_covariance
+
   kill_switch_code:
     type: integer
     default_value: 48
@@ -63,14 +74,6 @@ params:
     read_only: true
     var_name: pointcloud_deskewed_
 
-  publish_tf:
-    type: bool
-    default_value: true
-    description: "Publish TF."
-    constraints: "Cannot be changed."
-    read_only: true
-    var_name: publish_tf_
-
   pose_covariance:
     type: double_array
     default_value: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
@@ -82,13 +85,32 @@ params:
     read_only: false
     validator: validate_pose_covariance
 
-  imu_covariance:
-    type: double_array
-    default_value: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+  publish_tf:
+    type: bool
+    default_value: true
+    description: "Publish TF."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: publish_tf_
+
+  velocity_control_vhorz_max:
+    type: double
+    default_value: 2.0
     min_value: 0.0
-    max_value: 1000.0
+    max_value: 10.0
     step: 0.0
-    description: "Covariances for IMU variables."
-    constraints: "Must be valid covariance values."
+    description: "Maximum horizontal velocity for velocity control [m/s]."
+    constraints: "Must be a positive value."
     read_only: false
-    validator: validate_imu_covariance
+    var_name: velocity_control_vhorz_max_
+
+  velocity_control_vyaw_max:
+    type: double
+    default_value: 1.5
+    min_value: 0.0
+    max_value: 3.14159265
+    step: 0.0
+    description: "Maximum yaw velocity for velocity control [rad/s]."
+    constraints: "Must be a positive value."
+    read_only: false
+    var_name: velocity_control_vyaw_max_

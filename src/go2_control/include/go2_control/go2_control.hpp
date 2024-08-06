@@ -25,6 +25,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <future>
 #include <memory>
@@ -195,14 +196,16 @@ private:
 
   /* Node parameters. */
   std::string frame_prefix_ = "";
+  std::vector<double> imu_covariance_ = {};
   int64_t kill_switch_code_ = 0;
   int64_t kill_switch_release_code_ = 0;
   int64_t operations_stabilization_time_ = 0;
   int64_t operations_timeout_ = 0;
   bool pointcloud_deskewed_ = false;
-  bool publish_tf_ = false;
   std::vector<double> pose_covariance_ = {};
-  std::vector<double> imu_covariance_ = {};
+  bool publish_tf_ = false;
+  double velocity_control_vhorz_max_ = 0.0;
+  double velocity_control_vyaw_max_ = 0.0;
 
   /* Node parameters validators. */
   bool validate_pose_covariance(const rclcpp::Parameter & p);
