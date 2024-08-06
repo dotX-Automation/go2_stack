@@ -72,6 +72,8 @@ void Go2Control::init_cgroups()
     rclcpp::CallbackGroupType::MutuallyExclusive);
   lowstate_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
+  odom_callback_group_ = this->create_callback_group(
+    rclcpp::CallbackGroupType::MutuallyExclusive);
   point_cloud_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
   pose_callback_group_ = this->create_callback_group(
@@ -146,7 +148,19 @@ void Go2Control::init_subscriptions()
       point_cloud_options);
   }
 
-  // pose
+  // robot_odom
+  rclcpp::SubscriptionOptions odom_options{};
+  odom_options.callback_group = odom_callback_group_;
+  odom_sub_ = this->create_subscription<Odometry>(
+    "/utlidar/robot_odom",
+    dua_qos::Reliable::get_datum_qos(),
+    std::bind(
+      &Go2Control::odometry_callback,
+      this,
+      std::placeholders::_1),
+    odom_options);
+
+  // robot_pose
   rclcpp::SubscriptionOptions pose_options{};
   pose_options.callback_group = pose_callback_group_;
   pose_sub_ = this->create_subscription<PoseStamped>(
@@ -158,7 +172,7 @@ void Go2Control::init_subscriptions()
       std::placeholders::_1),
     pose_options);
 
-  // sportmode_state
+  // sportmodestate
   rclcpp::SubscriptionOptions sportmode_state_options{};
   sportmode_state_options.callback_group = sportmode_state_callback_group_;
   sportmode_state_sub_ = this->create_subscription<SportModeState>(
@@ -211,6 +225,11 @@ void Go2Control::init_publishers()
   // joint_states
   joint_states_pub_ = this->create_publisher<JointState>(
     "~/joint_states",
+    dua_qos::Reliable::get_datum_qos());
+
+  // odometry
+  odom_pub_ = this->create_publisher<Odometry>(
+    "~/odometry",
     dua_qos::Reliable::get_datum_qos());
 
   // point_cloud

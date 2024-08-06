@@ -52,6 +52,7 @@
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -67,6 +68,7 @@
 
 using namespace dua_interfaces::msg;
 using namespace geometry_msgs::msg;
+using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
 using namespace std_msgs::msg;
 using namespace unitree_api::msg;
@@ -125,6 +127,7 @@ private:
   rclcpp::CallbackGroup::SharedPtr foot_position_callback_group_;
   rclcpp::CallbackGroup::SharedPtr lowstate_callback_group_;
   rclcpp::CallbackGroup::SharedPtr point_cloud_callback_group_;
+  rclcpp::CallbackGroup::SharedPtr odom_callback_group_;
   rclcpp::CallbackGroup::SharedPtr pose_callback_group_;
   rclcpp::CallbackGroup::SharedPtr sportmode_state_callback_group_;
   rclcpp::CallbackGroup::SharedPtr wireless_controller_callback_group_;
@@ -133,6 +136,7 @@ private:
   rclcpp::Subscription<Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::Subscription<PointCloud2>::SharedPtr foot_position_sub_;
   rclcpp::Subscription<LowState>::SharedPtr lowstate_sub_;
+  rclcpp::Subscription<Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<PointCloud2>::SharedPtr point_cloud_sub_;
   rclcpp::Subscription<PoseStamped>::SharedPtr pose_sub_;
   rclcpp::Subscription<SportModeState>::SharedPtr sportmode_state_sub_;
@@ -142,6 +146,7 @@ private:
   void cmd_vel_callback(const Twist::SharedPtr msg);
   void foot_position_callback(const PointCloud2::SharedPtr msg);
   void lowstate_callback(const LowState::SharedPtr msg);
+  void odometry_callback(const Odometry::SharedPtr msg);
   void point_cloud_callback(const PointCloud2::SharedPtr msg);
   void pose_callback(const PoseStamped::SharedPtr msg);
   void sportmode_state_callback(const SportModeState::SharedPtr msg);
@@ -151,6 +156,7 @@ private:
   rclcpp::Publisher<PointCloud2>::SharedPtr foot_position_pub_;
   rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::Publisher<JointState>::SharedPtr joint_states_pub_;
+  rclcpp::Publisher<Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<PointCloud2>::SharedPtr point_cloud_pub_;
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Request>::SharedPtr sport_request_pub_;
@@ -204,12 +210,14 @@ private:
   bool pointcloud_deskewed_ = false;
   std::vector<double> pose_covariance_ = {};
   bool publish_tf_ = false;
+  std::vector<double> twist_covariance_ = {};
   double velocity_control_vhorz_max_ = 0.0;
   double velocity_control_vyaw_max_ = 0.0;
 
   /* Node parameters validators. */
-  bool validate_pose_covariance(const rclcpp::Parameter & p);
   bool validate_imu_covariance(const rclcpp::Parameter & p);
+  bool validate_pose_covariance(const rclcpp::Parameter & p);
+  bool validate_twist_covariance(const rclcpp::Parameter & p);
 
   /* Auxiliary routines. */
   void notify_sportmode_state();

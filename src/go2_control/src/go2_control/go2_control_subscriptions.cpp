@@ -112,6 +112,43 @@ void Go2Control::lowstate_callback(const LowState::SharedPtr msg)
 }
 
 /**
+ * @brief Republishes odometry data.
+ *
+ * @param msg Odometry message to parse.
+ */
+void Go2Control::odometry_callback(const Odometry::SharedPtr msg)
+{
+  // Initialize odometry message
+  Odometry odom_msg{};
+  odom_msg.header.set__stamp(msg->header.stamp);
+  odom_msg.header.set__frame_id(local_frame_);
+  odom_msg.set__child_frame_id(body_frame_);
+
+  // Set pose
+  odom_msg.pose.set__pose(msg->pose.pose);
+
+  // Set pose covariance
+  int j = 0;
+  for (int i = 0; i < 6; i++) {
+    odom_msg.pose.covariance[i + j * 6] = pose_covariance_[i];
+    j++;
+  }
+
+  // Set twist
+  odom_msg.twist.set__twist(msg->twist.twist);
+
+  // Set twist covariance
+  j = 0;
+  for (int i = 0; i < 6; i++) {
+    odom_msg.twist.covariance[i + j * 6] = twist_covariance_[i];
+    j++;
+  }
+
+  // Publish message
+  odom_pub_->publish(odom_msg);
+}
+
+/**
  * @brief Republishes onboard LiDAR data.
  *
  * @param msg Message to parse.

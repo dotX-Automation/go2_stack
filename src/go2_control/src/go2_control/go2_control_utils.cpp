@@ -91,4 +91,27 @@ bool Go2Control::validate_imu_covariance(const rclcpp::Parameter & p)
   return true;
 }
 
+/**
+ * @brief Validates the twist_covariance parameter.
+ *
+ * @param p Parameter to validate.
+ * @return True if the parameter is valid, false otherwise.
+ */
+bool Go2Control::validate_twist_covariance(const rclcpp::Parameter & p)
+{
+  if (p.as_double_array().size() != 6) {
+    RCLCPP_ERROR(
+      get_logger(),
+      "Invalid twist_covariance parameter size: %ld",
+      p.as_double_array().size());
+    return false;
+  }
+
+  twist_covariance_.resize(6);
+  for (size_t i = 0; i < 6; i++) {
+    twist_covariance_[i] = p.as_double_array()[i];
+  }
+  return true;
+}
+
 } // namespace go2_control

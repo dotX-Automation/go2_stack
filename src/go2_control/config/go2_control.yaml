@@ -24,5 +24,12 @@
     - 0.01
     - 0.01
     publish_tf: true
+    twist_covariance:
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
     velocity_control_vhorz_max: 2.0
     velocity_control_vyaw_max: 1.5
