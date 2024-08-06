@@ -221,6 +221,7 @@ private:
   std::atomic<bool> kill_switch_;
   pose_kit::Pose pose_;
   uint8_t sportmode_last_ = 0;
+  bool stopped_ = false;
 
   /* Node parameters. */
   std::string frame_prefix_ = "";

@@ -39,17 +39,23 @@ void Go2Control::cmd_vel_callback(const Twist::SharedPtr msg)
 
   // Check kill switch, if engaged publish zero velocity setpoint to reactively stop the robot
   if (kill_switch_.load(std::memory_order_acquire)) {
-    nlohmann::json stop_j = {
-      {"x", 0.0},
-      {"y", 0.0},
-      {"z", 0.0}};
+    if (!stopped_) {
+      nlohmann::json stop_j = {
+        {"x", 0.0},
+        {"y", 0.0},
+        {"z", 0.0}};
 
-    Request stop_req{};
-    stop_req.header.identity.set__id(this->get_clock()->now().nanoseconds());
-    stop_req.header.identity.set__api_id(unitree::robot::go2::ROBOT_SPORT_API_ID_MOVE);
-    stop_req.set__parameter(stop_j.dump());
-    sport_request_pub_->publish(stop_req);
+      Request stop_req{};
+      stop_req.header.identity.set__id(this->get_clock()->now().nanoseconds());
+      stop_req.header.identity.set__api_id(unitree::robot::go2::ROBOT_SPORT_API_ID_MOVE);
+      stop_req.set__parameter(stop_j.dump());
+      sport_request_pub_->publish(stop_req);
+
+      stopped_ = true;
+    }
     return;
+  } else {
+    stopped_ = false;
   }
 
   // Saturate velocities
@@ -286,10 +292,14 @@ void Go2Control::sportmode_state_callback(const SportModeState::SharedPtr msg)
  */
 void Go2Control::wireless_controller_callback(const WirelessController::SharedPtr msg)
 {
-  if (msg->keys == uint16_t(kill_switch_code_)) {
+  if (msg->keys == uint16_t(kill_switch_code_) &&
+    !kill_switch_.load(std::memory_order_acquire))
+  {
     kill_switch_.store(true, std::memory_order_release);
     RCLCPP_WARN(this->get_logger(), "Kill switch activated");
-  } else if (msg->keys == uint16_t(kill_switch_release_code_)) {
+  } else if (msg->keys == uint16_t(kill_switch_release_code_) &&
+    kill_switch_.load(std::memory_order_acquire))
+  {
     kill_switch_.store(false, std::memory_order_release);
     RCLCPP_WARN(this->get_logger(), "Kill switch released");
   }
