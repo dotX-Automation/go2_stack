@@ -262,6 +262,15 @@ void Go2Control::init_publishers()
  */
 void Go2Control::init_services()
 {
+  // actions
+  actions_srv_ = this->create_service<Action>(
+    "~/actions",
+    std::bind(
+      &Go2Control::actions_callback,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2));
+
   // obstacle_avoidance
   obstacle_avoidance_srv_ = this->create_service<SetBool>(
     "~/obstacle_avoidance",

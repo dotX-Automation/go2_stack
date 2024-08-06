@@ -59,12 +59,14 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/header.hpp>
 #include <unitree_api/msg/request.hpp>
+#include <unitree_go/msg/action_id.hpp>
 #include <unitree_go/msg/imu_state.hpp>
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/sport_mode_state.hpp>
 #include <unitree_go/msg/wireless_controller.hpp>
 
 #include <std_srvs/srv/set_bool.hpp>
+#include <unitree_go/srv/action.hpp>
 
 #include <dua_interfaces/action/arm.hpp>
 #include <dua_interfaces/action/disarm.hpp>
@@ -78,6 +80,7 @@ using namespace unitree_api::msg;
 using namespace unitree_go::msg;
 
 using namespace std_srvs::srv;
+using namespace unitree_go::srv;
 
 using namespace dua_interfaces::action;
 
@@ -168,10 +171,14 @@ private:
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Request>::SharedPtr sport_request_pub_;
 
-  /* Service clients. */
+  /* Service servers. */
+  rclcpp::Service<Action>::SharedPtr actions_srv_;
   rclcpp::Service<SetBool>::SharedPtr obstacle_avoidance_srv_;
 
   /* Service callbacks. */
+  void actions_callback(
+    Action::Request::SharedPtr req,
+    Action::Response::SharedPtr resp);
   void obstacle_avoidance_callback(
     SetBool::Request::SharedPtr req,
     SetBool::Response::SharedPtr resp);

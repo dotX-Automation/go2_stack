@@ -1,0 +1,7 @@
+# REQUEST
+# Robot action to perform.
+unitree_go/ActionID action
+---
+# RESPONSE
+# Result of the action.
+bool success

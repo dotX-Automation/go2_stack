@@ -70,3 +70,13 @@ function arm {
 function disarm {
   ros2 action send_goal -f "$NAMESPACE"/go2_control/disarm dua_interfaces/action/Disarm "{}"
 }
+
+# Performs a special action
+function action {
+  if [[ $# -ne 1 ]]; then
+    echo >&2 "Usage: action ACTION_ID"
+    return 1
+  fi
+
+  ros2 service call "$NAMESPACE"/go2_control/actions unitree_go/srv/Action "{action: {id: $1}}"
+}

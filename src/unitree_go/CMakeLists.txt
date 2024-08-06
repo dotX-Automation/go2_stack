@@ -24,10 +24,14 @@ find_package(rosidl_generator_dds_idl REQUIRED)
 set(MSG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/msg")
 file(GLOB MSG_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${MSG_DIR}/*.msg")
 
+# Glob together all the service files
+set(SRV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/srv")
+file(GLOB SRV_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${SRV_DIR}/*.srv")
+
 # Generate ROS 2 interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${MSG_FILES}
-)
+  ${SRV_FILES})
 
 # Generate DDS interfaces
 rosidl_generate_dds_interfaces(

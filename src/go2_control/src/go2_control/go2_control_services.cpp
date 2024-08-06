@@ -26,6 +26,25 @@ namespace go2_control
 {
 
 /**
+ * @brief Tells the robot to perform a special action.
+ *
+ * @param req Service request.
+ * @param resp Service response.
+ */
+void Go2Control::actions_callback(
+  Action::Request::SharedPtr req,
+  Action::Response::SharedPtr resp)
+{
+  Request action_req{};
+  action_req.header.identity.set__id(this->get_clock()->now().nanoseconds());
+  action_req.header.identity.set__api_id(req->action.id);
+
+  sport_request_pub_->publish(action_req);
+
+  resp->set__success(true);
+}
+
+/**
  * @brief Sets obstacle avoidance service state.
  *
  * @param req Service request.
