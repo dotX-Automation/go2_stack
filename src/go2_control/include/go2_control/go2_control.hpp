@@ -28,6 +28,7 @@
 #include <cmath>
 #include <condition_variable>
 #include <future>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -62,12 +63,14 @@
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/battery_state.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/header.hpp>
 #include <unitree_api/msg/request.hpp>
 #include <unitree_go/msg/action_id.hpp>
+#include <unitree_go/msg/bms_state.hpp>
 #include <unitree_go/msg/imu_state.hpp>
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/sport_mode_state.hpp>
@@ -172,6 +175,7 @@ private:
   void wireless_controller_callback(const WirelessController::SharedPtr msg);
 
   /* Topic publishers. */
+  rclcpp::Publisher<BatteryState>::SharedPtr battery_state_pub_;
   rclcpp::Publisher<PointCloud2>::SharedPtr foot_position_pub_;
   rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::Publisher<JointState>::SharedPtr joint_states_pub_;
@@ -273,6 +277,7 @@ private:
     const std::string & source_frame,
     const rclcpp::Time & time,
     double tf_timeout_sec);
+  void parse_battery_state(const BmsState & msg);
 };
 
 } // go2_control

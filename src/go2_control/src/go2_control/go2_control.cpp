@@ -224,6 +224,11 @@ void Go2Control::init_tf2()
  */
 void Go2Control::init_publishers()
 {
+  // battery_state
+  battery_state_pub_ = this->create_publisher<BatteryState>(
+    "~/battery_state",
+    dua_qos::Reliable::get_datum_qos());
+
   // foot_position
   foot_position_pub_ = this->create_publisher<PointCloud2>(
     "~/foot_position",
