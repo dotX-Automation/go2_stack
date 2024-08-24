@@ -41,6 +41,9 @@ void Go2Control::actions_callback(
 
   sport_request_pub_->publish(action_req);
 
+  // Wait for the action to be completed by simply waiting
+  std::this_thread::sleep_for(std::chrono::milliseconds(actions_sleep_time_));
+
   resp->set__success(true);
 }
 

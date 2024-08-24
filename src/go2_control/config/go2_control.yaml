@@ -1,5 +1,6 @@
 /go2/go2_control:
   ros__parameters:
+    actions_sleep_time: 3000
     frame_prefix: ''
     imu_covariance:
     - 0.01

@@ -224,6 +224,7 @@ private:
   bool stopped_ = false;
 
   /* Node parameters. */
+  int64_t actions_sleep_time_ = 0;
   std::string frame_prefix_ = "";
   std::vector<double> imu_covariance_ = {};
   int64_t kill_switch_code_ = 0;

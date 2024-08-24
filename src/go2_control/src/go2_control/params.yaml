@@ -3,6 +3,17 @@ namespace: go2_control
 node_class_name: Go2Control
 
 params:
+  actions_sleep_time:
+    type: integer
+    default_value: 3000
+    min_value: 100
+    max_value: 10000
+    step: 1
+    description: "Time to sleep waiting for actions to be performed [ms]."
+    constraints: "Must be a positive integer."
+    read_only: false
+    var_name: actions_sleep_time_
+
   frame_prefix:
     type: string
     default_value: ''
