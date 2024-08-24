@@ -85,9 +85,17 @@ void Go2Control::cmd_vel_callback(const Twist::SharedPtr msg)
  */
 void Go2Control::foot_position_callback(const PointCloud2::SharedPtr msg)
 {
-  PointCloud2 foot_position_msg = *msg;
-  foot_position_msg.header.frame_id = local_frame_;
-  foot_position_pub_->publish(foot_position_msg);
+  // Read the cloud into a matrix
+  Eigen::MatrixXd cloud_mat = cloud_to_matrix(msg);
+
+  // Transform the cloud into the robot's true local frame
+  Eigen::MatrixXd cloud_mat_comp = init_pose_inv_iso_.matrix() * cloud_mat;
+
+  // Write the new cloud into a message and publish it
+  PointCloud2::SharedPtr foot_position_msg = matrix_to_cloud(cloud_mat_comp);
+  foot_position_msg->header.set__stamp(msg->header.stamp);
+  foot_position_msg->header.frame_id = local_frame_;
+  foot_position_pub_->publish(*foot_position_msg);
 }
 
 /**
@@ -124,14 +132,22 @@ void Go2Control::lowstate_callback(const LowState::SharedPtr msg)
  */
 void Go2Control::odometry_callback(const Odometry::SharedPtr msg)
 {
+  // Drop this sample if no initial pose is available
+  if (!init_pose_ok_.load(std::memory_order_acquire)) {
+    return;
+  }
+
   // Initialize odometry message
   Odometry odom_msg{};
   odom_msg.header.set__stamp(msg->header.stamp);
   odom_msg.header.set__frame_id(local_frame_);
   odom_msg.set__child_frame_id(body_frame_);
 
-  // Set pose
-  odom_msg.pose.set__pose(msg->pose.pose);
+  // Set pose compensating initial pose
+  Eigen::Isometry3d pose_curr_iso{};
+  tf2::fromMsg(msg->pose.pose, pose_curr_iso);
+  Eigen::Isometry3d pose_curr_iso_comp = init_pose_inv_iso_ * pose_curr_iso;
+  odom_msg.pose.set__pose(tf2::toMsg(pose_curr_iso_comp));
 
   // Set pose covariance
   int j = 0;
@@ -161,9 +177,37 @@ void Go2Control::odometry_callback(const Odometry::SharedPtr msg)
  */
 void Go2Control::point_cloud_callback(const PointCloud2::SharedPtr msg)
 {
-  PointCloud2 point_cloud_msg = *msg;
-  point_cloud_msg.header.frame_id = frame_prefix_ + point_cloud_msg.header.frame_id;
-  point_cloud_pub_->publish(point_cloud_msg);
+  if (!pointcloud_deskewed_) {
+    // Raw point cloud is already in LiDAR frame
+    PointCloud2 point_cloud_msg = *msg;
+    point_cloud_msg.header.frame_id = frame_prefix_ + "utlidar";
+    point_cloud_pub_->publish(point_cloud_msg);
+  } else {
+    // Deskewed point cloud needs to be transformed to the robot body frame
+    if (!init_pose_ok_.load(std::memory_order_acquire)) {
+      return;
+    }
+
+    // Read point cloud
+    std::shared_ptr<std::vector<float>> intensities = std::make_shared<std::vector<float>>();
+    Eigen::MatrixXd cloud_mat = cloud_to_matrix(msg, true, intensities);
+
+    // Transform the cloud into the LiDAR frame
+    Eigen::Isometry3d lidar_to_local = tf2::transformToEigen(
+      get_tf(
+        frame_prefix_ + "utlidar",
+        local_frame_,
+        msg->header.stamp,
+        tf_timeout_));
+    Eigen::Isometry3d pc_transform = lidar_to_local * init_pose_inv_iso_;
+    Eigen::MatrixXd cloud_mat_comp = pc_transform.matrix() * cloud_mat;
+
+    // Write the new cloud into a message and publish it
+    PointCloud2::SharedPtr point_cloud_msg = matrix_to_cloud(cloud_mat_comp, true, intensities);
+    point_cloud_msg->header.set__stamp(msg->header.stamp);
+    point_cloud_msg->header.frame_id = frame_prefix_ + "utlidar";
+    point_cloud_pub_->publish(*point_cloud_msg);
+  }
 }
 
 /**
@@ -174,17 +218,28 @@ void Go2Control::point_cloud_callback(const PointCloud2::SharedPtr msg)
 void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
 {
   // Store robot pose
-  PoseStamped pose_msg_curr = *msg;
-  pose_msg_curr.header.frame_id = local_frame_;
+  PoseStamped pose_msg_robot = *msg;
+  pose_msg_robot.header.frame_id = local_frame_;
+  pose_kit::Pose pose_curr{};
   state_lock_.lock();
-  pose_ = pose_kit::Pose(pose_msg_curr);
+  if (!init_pose_ok_.load(std::memory_order_acquire)) {
+    init_pose_ = pose_kit::Pose(pose_msg_robot);
+    init_pose_inv_iso_ = init_pose_.get_isometry().inverse();
+    init_pose_ok_.store(true, std::memory_order_release);
+  }
+  pose_kit::Pose pose_curr_robot(pose_msg_robot);
+  Eigen::Isometry3d pose_curr_robot_iso = pose_curr_robot.get_isometry();
+  Eigen::Isometry3d pose_curr_iso = init_pose_inv_iso_ * pose_curr_robot_iso;
+  pose_ = pose_kit::Pose(
+    pose_curr_iso.translation(),
+    Eigen::Quaterniond(pose_curr_iso.rotation()),
+    pose_msg_robot.header);
+  pose_curr = pose_;
   state_lock_.unlock();
 
   // Republish the pose with covariance
-  PoseWithCovarianceStamped pose_msg{};
-  pose_msg.set__header(pose_msg_curr.header);
-  pose_msg.pose.set__pose(pose_msg_curr.pose);
-  pose_msg.pose.pose.position.set__z(pose_msg.pose.pose.position.z);
+  PoseWithCovarianceStamped pose_msg = pose_curr.to_pose_with_covariance_stamped();
+  pose_msg.set__header(pose_msg_robot.header);
   int j = 0;
   for (int i = 0; i < 6; i++) {
     pose_msg.pose.covariance[i + j * 6] = pose_covariance_[i];
@@ -195,12 +250,12 @@ void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
   // Publish the tf
   if (publish_tf_) {
     TransformStamped tf_msg{};
-    tf_msg.set__header(pose_msg_curr.header);
+    tf_msg.set__header(pose_msg.header);
     tf_msg.set__child_frame_id(body_frame_);
-    tf_msg.transform.translation.set__x(pose_msg_curr.pose.position.x);
-    tf_msg.transform.translation.set__y(pose_msg_curr.pose.position.y);
-    tf_msg.transform.translation.set__z(pose_msg_curr.pose.position.z);
-    tf_msg.transform.set__rotation(pose_msg_curr.pose.orientation);
+    tf_msg.transform.translation.set__x(pose_msg.pose.pose.position.x);
+    tf_msg.transform.translation.set__y(pose_msg.pose.pose.position.y);
+    tf_msg.transform.translation.set__z(pose_msg.pose.pose.position.z);
+    tf_msg.transform.set__rotation(pose_msg.pose.pose.orientation);
     tf_broadcaster_->sendTransform(tf_msg);
   }
 }

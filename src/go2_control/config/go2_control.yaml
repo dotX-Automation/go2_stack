@@ -26,6 +26,7 @@
     - 0.01
     - 0.01
     publish_tf: true
+    tf_timeout: 0.1
     twist_covariance:
     - 0.01
     - 0.01

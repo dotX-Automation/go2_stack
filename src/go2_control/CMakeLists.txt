@@ -23,6 +23,7 @@ find_package(dua_app_management REQUIRED)
 find_package(dua_interfaces REQUIRED)
 find_package(dua_node REQUIRED)
 find_package(dua_qos_cpp REQUIRED)
+find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(geometry_msgs REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(nav_msgs REQUIRED)
@@ -59,6 +60,8 @@ target_include_directories(go2_control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 target_compile_features(go2_control PUBLIC c_std_99 cxx_std_17) # Require C99 and C++17
+target_link_libraries(go2_control
+  Eigen3::Eigen)
 ament_target_dependencies(go2_control
   dua_interfaces
   dua_node

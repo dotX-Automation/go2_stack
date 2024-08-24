@@ -66,6 +66,144 @@ void Go2Control::set_obstacle_avoidance(bool state)
 }
 
 /**
+ * @brief Converts a point cloud message into a Eigen matrix.
+ *
+ * @param msg Point cloud message to convert.
+ * @param read_intensities True if the intensities should be read, false otherwise.
+ * @param intensities Vector to store the intensities.
+ * @return Eigen matrix with the point cloud data.
+ */
+Eigen::MatrixXd Go2Control::cloud_to_matrix(
+  const PointCloud2::SharedPtr msg,
+  bool read_intensities,
+  const std::shared_ptr<std::vector<float>> intensities)
+{
+  Eigen::MatrixXd cloud(4, msg->width);
+
+  sensor_msgs::PointCloud2ConstIterator<float> x_it(*msg, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> y_it(*msg, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> z_it(*msg, "z");
+
+  std::shared_ptr<sensor_msgs::PointCloud2Iterator<float>> i_it;
+  if (read_intensities) {
+    i_it = std::make_shared<sensor_msgs::PointCloud2Iterator<float>>(*msg, "intensity");
+  }
+
+  for (size_t i = 0; i < msg->width; i++, ++x_it, ++y_it, ++z_it) {
+    cloud(0, i) = double(*x_it);
+    cloud(1, i) = double(*y_it);
+    cloud(2, i) = double(*z_it);
+    cloud(3, i) = 1.0;
+
+    if (read_intensities) {
+      intensities->push_back(*(*i_it));
+      ++(*i_it);
+    }
+  }
+
+  return cloud;
+}
+
+/**
+ * @brief Converts an Eigen matrix into a point cloud message.
+ *
+ * @param mat Eigen matrix to convert.
+ * @param write_intensities True if the intensities should be written, false otherwise.
+ * @param intensities Vector with the intensities.
+ * @return Point cloud message with the matrix data.
+ */
+PointCloud2::SharedPtr Go2Control::matrix_to_cloud(
+  const Eigen::MatrixXd & mat,
+  bool write_intensities,
+  const std::shared_ptr<std::vector<float>> intensities)
+{
+  PointCloud2::SharedPtr msg = std::make_shared<PointCloud2>();
+
+  msg->set__height(1);
+  msg->set__width(mat.cols());
+  msg->set__is_bigendian(false);
+  msg->set__is_dense(true);
+
+  sensor_msgs::PointCloud2Modifier modifier(*msg);
+  if (write_intensities) {
+    modifier.setPointCloud2Fields(
+      4,
+      "x", 1, PointField::FLOAT32,
+      "y", 1, PointField::FLOAT32,
+      "z", 1, PointField::FLOAT32,
+      "intensity", 1, PointField::FLOAT32);
+  } else {
+    modifier.setPointCloud2Fields(
+      3,
+      "x", 1, PointField::FLOAT32,
+      "y", 1, PointField::FLOAT32,
+      "z", 1, PointField::FLOAT32);
+  }
+
+  sensor_msgs::PointCloud2Iterator<float> x_it(*msg, "x");
+  sensor_msgs::PointCloud2Iterator<float> y_it(*msg, "y");
+  sensor_msgs::PointCloud2Iterator<float> z_it(*msg, "z");
+
+  std::shared_ptr<sensor_msgs::PointCloud2Iterator<float>> i_it;
+  if (write_intensities) {
+    i_it = std::make_shared<sensor_msgs::PointCloud2Iterator<float>>(*msg, "intensity");
+  }
+
+  for (ssize_t i = 0; i < mat.cols(); i++, ++x_it, ++y_it, ++z_it) {
+    *x_it = float(mat(0, i));
+    *y_it = float(mat(1, i));
+    *z_it = float(mat(2, i));
+
+    if (write_intensities) {
+      *(*i_it) = intensities->at(i);
+      ++(*i_it);
+    }
+  }
+
+  return msg;
+}
+
+/**
+ * @brief Retrieves a transform from the TF tree.
+ *
+ * @param target_frame Target frame of the transform.
+ * @param source_frame Source frame of the transform.
+ * @param time Time of the transform.
+ * @param tf_timeout_sec Timeout for the transform request [seconds].
+ * @return TransformStamped with the requested transform.
+ */
+TransformStamped Go2Control::get_tf(
+  const std::string & target_frame,
+  const std::string & source_frame,
+  const rclcpp::Time & time,
+  double tf_timeout_sec)
+{
+  TransformStamped tf{};
+  rclcpp::Time tf_time = time;
+
+  while (true) {
+    try {
+      tf = tf_buffer_->lookupTransform(
+        target_frame,
+        source_frame,
+        tf_time,
+        tf2::durationFromSec(tf_timeout_sec));
+      break;
+    } catch (const tf2::ExtrapolationException & e) {
+      // Just get the latest
+      tf_time = rclcpp::Time{};
+    } catch (const tf2::TransformException & e) {
+      RCLCPP_ERROR(
+        this->get_logger(),
+        "Go2Control::get_tf: TF exception: %s",
+        e.what());
+    }
+  }
+
+  return tf;
+}
+
+/**
  * @brief Validates the pose_covariance parameter.
  *
  * @param p Parameter to validate.

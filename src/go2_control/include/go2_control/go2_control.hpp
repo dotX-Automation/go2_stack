@@ -33,6 +33,10 @@
 #include <thread>
 #include <vector>
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+
 #include <unitree/robot/go2/obstacles_avoid/obstacles_avoid_api.hpp>
 #include <unitree/robot/go2/sport/sport_api.hpp>
 
@@ -47,7 +51,11 @@
 #include <dua_qos_cpp/dua_qos.hpp>
 
 #include <tf2_eigen/tf2_eigen.hpp>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
+
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <dua_interfaces/msg/command_result_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
@@ -129,7 +137,9 @@ private:
   /* TF2 data. */
   std::string body_frame_;
   std::string local_frame_;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
   /* Topic subscriptions callback groups. */
   rclcpp::CallbackGroup::SharedPtr cmd_vel_callback_group_;
@@ -219,7 +229,10 @@ private:
   /* Internal state variables. */
   std::atomic<bool> armed_;
   std::atomic<bool> kill_switch_;
-  pose_kit::Pose pose_;
+  std::atomic<bool> init_pose_ok_;
+  pose_kit::Pose pose_{};
+  pose_kit::Pose init_pose_{};
+  Eigen::Isometry3d init_pose_inv_iso_{};
   uint8_t sportmode_last_ = 0;
   bool stopped_ = false;
 
@@ -234,6 +247,7 @@ private:
   bool pointcloud_deskewed_ = false;
   std::vector<double> pose_covariance_ = {};
   bool publish_tf_ = false;
+  double tf_timeout_ = 0.0;
   std::vector<double> twist_covariance_ = {};
   double velocity_control_vhorz_max_ = 0.0;
   double velocity_control_vyaw_max_ = 0.0;
@@ -246,6 +260,19 @@ private:
   /* Auxiliary routines. */
   void notify_sportmode_state();
   void set_obstacle_avoidance(bool state);
+  Eigen::MatrixXd cloud_to_matrix(
+    const PointCloud2::SharedPtr msg,
+    bool read_intensities = false,
+    const std::shared_ptr<std::vector<float>> intensities = nullptr);
+  PointCloud2::SharedPtr matrix_to_cloud(
+    const Eigen::MatrixXd & mat,
+    bool write_intensities = false,
+    const std::shared_ptr<std::vector<float>> intensities = nullptr);
+  TransformStamped get_tf(
+    const std::string & target_frame,
+    const std::string & source_frame,
+    const rclcpp::Time & time,
+    double tf_timeout_sec);
 };
 
 } // go2_control

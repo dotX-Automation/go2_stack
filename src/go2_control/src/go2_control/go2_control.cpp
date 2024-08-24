@@ -61,6 +61,7 @@ void Go2Control::init_atomics()
 {
   armed_.store(false, std::memory_order_release);
   kill_switch_.store(false, std::memory_order_release);
+  init_pose_ok_.store(false, std::memory_order_release);
   sportmode_state_received_.store(true, std::memory_order_release);
 }
 
@@ -206,9 +207,16 @@ void Go2Control::init_subscriptions()
  */
 void Go2Control::init_tf2()
 {
+  // Initialize frame names
   body_frame_ = frame_prefix_ + "base_link";
   local_frame_ = frame_prefix_ + "odom";
+
+  // Initialize TF broadcaster
   tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(*this);
+
+  // Initialize TF listener and buffer
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 }
 
 /**
