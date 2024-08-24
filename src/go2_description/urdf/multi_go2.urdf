@@ -1245,7 +1245,7 @@ Stephen Brawner (brawner@gmail.com)
       xyz="0 0 0" />
   </joint>
   <link
-    name="{robot_num}/radar">
+    name="{robot_num}/utlidar">
     <inertial>
       <origin
         xyz="0 0 0"
@@ -1262,15 +1262,15 @@ Stephen Brawner (brawner@gmail.com)
     </inertial>
   </link>
   <joint
-    name="{robot_num}/radar_joint"
+    name="{robot_num}/utlidar_joint"
     type="fixed">
     <origin
-      xyz="0.28945 0 -0.046825"
+      xyz="0.28945 0.032 -0.036825"
       rpy="0 2.8782 0" />
     <parent
       link="{robot_num}/base_link" />
     <child
-      link="{robot_num}/radar" />
+      link="{robot_num}/utlidar" />
     <axis
       xyz="0 0 0" />
   </joint>
