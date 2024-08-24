@@ -99,6 +99,30 @@ void Go2Control::foot_position_callback(const PointCloud2::SharedPtr msg)
 }
 
 /**
+ * @brief Republishes front video stream.
+ *
+ * @param msg Go2FrontVideoData message to parse.
+ */
+void Go2Control::front_video_data_callback(const Go2FrontVideoData::SharedPtr msg)
+{
+  rclcpp::Time stamp(int64_t(msg->time_frame), RCL_SYSTEM_TIME);
+
+  Image::SharedPtr image_msg = std::make_shared<Image>();
+  image_msg->header.set__stamp(stamp);
+  image_msg->header.set__frame_id(frame_prefix_ + "front_camera");
+
+  image_msg->set__width(1280);
+  image_msg->set__height(720);
+  image_msg->set__encoding(sensor_msgs::image_encodings::BGR8);
+  image_msg->set__is_bigendian(false);
+  image_msg->set__step(1280 * 3);
+
+  image_msg->data = msg->video720p;
+
+  front_image_pub_->publish(image_msg);
+}
+
+/**
  * @brief Republishes low-level robot state data.
  *
  * @param msg Message to parse.
