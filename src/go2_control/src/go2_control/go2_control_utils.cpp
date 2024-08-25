@@ -150,9 +150,9 @@ PointCloud2::SharedPtr Go2Control::matrix_to_cloud(
   }
 
   for (ssize_t i = 0; i < mat.cols(); i++, ++x_it, ++y_it, ++z_it) {
-    *x_it = float(mat(0, i));
-    *y_it = float(mat(1, i));
-    *z_it = float(mat(2, i));
+    *x_it = static_cast<float>(mat(0, i));
+    *y_it = static_cast<float>(mat(1, i));
+    *z_it = static_cast<float>(mat(2, i));
 
     if (write_intensities) {
       *(*i_it) = intensities->at(i);
@@ -216,14 +216,14 @@ void Go2Control::parse_battery_state(const BmsState & msg)
 
   float nan = std::numeric_limits<float>::quiet_NaN();
 
-  battery_state_msg.set__voltage(float(msg.cell_vol[0]));
+  battery_state_msg.set__voltage(static_cast<float>(msg.cell_vol[0]));
   battery_state_msg.set__temperature(nan);
-  battery_state_msg.set__current(float(msg.current));
+  battery_state_msg.set__current(static_cast<float>(msg.current));
   battery_state_msg.set__charge(nan);
   battery_state_msg.set__capacity(15.0f);
   battery_state_msg.set__design_capacity(15.0f);
   if (msg.cell_vol[0] > 0) {
-    battery_state_msg.set__percentage(float(msg.cell_vol[0]) / 29.6f);
+    battery_state_msg.set__percentage(static_cast<float>(msg.cell_vol[0]) / 29.6f);
   } else {
     battery_state_msg.set__percentage(nan);
   }
@@ -233,7 +233,7 @@ void Go2Control::parse_battery_state(const BmsState & msg)
   battery_state_msg.set__present(true);
 
   for (int i = 0; i < 16; i++) {
-    battery_state_msg.cell_voltage.push_back(float(msg.cell_vol[i]));
+    battery_state_msg.cell_voltage.push_back(static_cast<float>(msg.cell_vol[i]));
     battery_state_msg.cell_temperature.push_back(nan);
   }
 
