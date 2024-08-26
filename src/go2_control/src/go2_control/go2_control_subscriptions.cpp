@@ -118,6 +118,7 @@ void Go2Control::front_video_data_callback(const Go2FrontVideoData::SharedPtr ms
   image_msg->set__step(1280 * 3);
 
   image_msg->data = msg->video720p;
+  std::cerr << "size: " << msg->video720p.size() << std::endl;
 
   front_image_pub_->publish(image_msg);
 }

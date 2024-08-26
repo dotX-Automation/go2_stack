@@ -164,46 +164,6 @@ PointCloud2::SharedPtr Go2Control::matrix_to_cloud(
 }
 
 /**
- * @brief Retrieves a transform from the TF tree.
- *
- * @param target_frame Target frame of the transform.
- * @param source_frame Source frame of the transform.
- * @param time Time of the transform.
- * @param tf_timeout_sec Timeout for the transform request [seconds].
- * @return TransformStamped with the requested transform.
- */
-TransformStamped Go2Control::get_tf(
-  const std::string & target_frame,
-  const std::string & source_frame,
-  const rclcpp::Time & time,
-  double tf_timeout_sec)
-{
-  TransformStamped tf{};
-  rclcpp::Time tf_time = time;
-
-  while (true) {
-    try {
-      tf = tf_buffer_->lookupTransform(
-        target_frame,
-        source_frame,
-        tf_time,
-        tf2::durationFromSec(tf_timeout_sec));
-      break;
-    } catch (const tf2::ExtrapolationException & e) {
-      // Just get the latest
-      tf_time = rclcpp::Time{};
-    } catch (const tf2::TransformException & e) {
-      RCLCPP_ERROR(
-        this->get_logger(),
-        "Go2Control::get_tf: TF exception: %s",
-        e.what());
-    }
-  }
-
-  return tf;
-}
-
-/**
  * @brief Republishes a battery state message.
  *
  * @param msg Low state message to parse.

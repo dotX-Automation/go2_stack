@@ -282,11 +282,6 @@ private:
     const Eigen::MatrixXd & mat,
     bool write_intensities = false,
     const std::shared_ptr<std::vector<float>> intensities = nullptr);
-  TransformStamped get_tf(
-    const std::string & target_frame,
-    const std::string & source_frame,
-    const rclcpp::Time & time,
-    double tf_timeout_sec);
   void parse_battery_state(const LowState::SharedPtr msg);
 };
 
