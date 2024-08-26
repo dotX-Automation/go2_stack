@@ -1264,7 +1264,7 @@ Stephen Brawner (brawner@gmail.com)
     name="utlidar_joint"
     type="fixed">
     <origin
-      xyz="0.28945 0.032 -0.036825"
+      xyz="0.28945 0 -0.046825"
       rpy="0 2.8782 0" />
     <parent
       link="base_link" />

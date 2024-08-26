@@ -204,40 +204,10 @@ void Go2Control::odometry_callback(const Odometry::SharedPtr msg)
  */
 void Go2Control::point_cloud_callback(const PointCloud2::SharedPtr msg)
 {
-  if (!pointcloud_deskewed_) {
     // Raw point cloud is already in LiDAR frame
     PointCloud2 point_cloud_msg = *msg;
     point_cloud_msg.header.frame_id = frame_prefix_ + "utlidar";
     point_cloud_pub_->publish(point_cloud_msg);
-  } else {
-    // Deskewed point cloud needs to be transformed to the robot body frame
-    if (!init_pose_ok_.load(std::memory_order_acquire)) {
-      return;
-    }
-
-    // Read point cloud
-    std::shared_ptr<std::vector<float>> intensities = std::make_shared<std::vector<float>>();
-    Eigen::MatrixXd cloud_mat = cloud_to_matrix(msg, true, intensities);
-
-    // Transform the cloud into the LiDAR frame
-    Eigen::Isometry3d body_to_lidar = tf2::transformToEigen(
-      get_tf(
-        frame_prefix_ + "utlidar",
-        body_frame_,
-        msg->header.stamp,
-        tf_timeout_));
-    state_lock_.lock();
-    Eigen::Isometry3d robot_lidar_tf = pose_robot_.get_isometry() * body_to_lidar;
-    state_lock_.unlock();
-    Eigen::Matrix4d pc_transform = robot_lidar_tf.matrix().inverse();
-    Eigen::MatrixXd cloud_mat_comp = pc_transform * cloud_mat;
-
-    // Write the new cloud into a message and publish it
-    PointCloud2::SharedPtr point_cloud_msg = matrix_to_cloud(cloud_mat_comp, true, intensities);
-    point_cloud_msg->header.set__stamp(msg->header.stamp);
-    point_cloud_msg->header.frame_id = frame_prefix_ + "utlidar";
-    point_cloud_pub_->publish(*point_cloud_msg);
-  }
 }
 
 /**

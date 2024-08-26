@@ -246,7 +246,6 @@ private:
   std::atomic<bool> kill_switch_;
   std::atomic<bool> init_pose_ok_;
   pose_kit::Pose pose_{};
-  pose_kit::Pose pose_robot_{};
   pose_kit::Pose init_pose_{};
   Eigen::Isometry3d init_pose_inv_iso_{};
   uint8_t sportmode_last_ = 0;
@@ -260,7 +259,6 @@ private:
   int64_t kill_switch_release_code_ = 0;
   int64_t operations_stabilization_time_ = 0;
   int64_t operations_timeout_ = 0;
-  bool pointcloud_deskewed_ = false;
   std::vector<double> pose_covariance_ = {};
   bool publish_tf_ = false;
   double tf_timeout_ = 0.0;

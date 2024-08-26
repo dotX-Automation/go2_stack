@@ -151,25 +151,14 @@ void Go2Control::init_subscriptions()
   // cloud
   rclcpp::SubscriptionOptions point_cloud_options{};
   point_cloud_options.callback_group = point_cloud_callback_group_;
-  if (pointcloud_deskewed_) {
-    point_cloud_sub_ = this->create_subscription<PointCloud2>(
-      "/utlidar/cloud_deskewed",
-      dua_qos::Reliable::get_scan_qos(),
-      std::bind(
-        &Go2Control::point_cloud_callback,
-        this,
-        std::placeholders::_1),
-      point_cloud_options);
-  } else {
-    point_cloud_sub_ = this->create_subscription<PointCloud2>(
-      "/utlidar/cloud",
-      dua_qos::Reliable::get_scan_qos(),
-      std::bind(
-        &Go2Control::point_cloud_callback,
-        this,
-        std::placeholders::_1),
-      point_cloud_options);
-  }
+  point_cloud_sub_ = this->create_subscription<PointCloud2>(
+    "/utlidar/cloud",
+    dua_qos::Reliable::get_scan_qos(),
+    std::bind(
+      &Go2Control::point_cloud_callback,
+      this,
+      std::placeholders::_1),
+    point_cloud_options);
 
   // robot_odom
   rclcpp::SubscriptionOptions odom_options{};

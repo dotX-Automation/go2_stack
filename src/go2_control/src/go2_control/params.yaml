@@ -84,14 +84,6 @@ params:
     read_only: false
     var_name: operations_timeout_
 
-  pointcloud_deskewed:
-    type: bool
-    default_value: true
-    description: "Use deskewed pointcloud."
-    constraints: "Cannot be changed."
-    read_only: true
-    var_name: pointcloud_deskewed_
-
   pose_covariance:
     type: double_array
     default_value: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
