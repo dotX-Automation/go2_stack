@@ -246,6 +246,7 @@ private:
   std::atomic<bool> kill_switch_;
   std::atomic<bool> init_pose_ok_;
   pose_kit::Pose pose_{};
+  pose_kit::Pose pose_robot_{};
   pose_kit::Pose init_pose_{};
   Eigen::Isometry3d init_pose_inv_iso_{};
   uint8_t sportmode_last_ = 0;
