@@ -218,18 +218,18 @@ void Go2Control::parse_battery_state(const LowState::SharedPtr msg)
 
   battery_state_msg.set__voltage(msg->power_v);
   battery_state_msg.set__temperature(nan);
-  battery_state_msg.set__current(msg->power_a);
+  battery_state_msg.set__current(nan);
   battery_state_msg.set__charge(nan);
   battery_state_msg.set__capacity(15.0f);
   battery_state_msg.set__design_capacity(15.0f);
-  battery_state_msg.set__percentage(msg->power_v / 29.6f);
+  battery_state_msg.set__percentage(msg->power_v / 32.0f);
   battery_state_msg.set__power_supply_status(BatteryState::POWER_SUPPLY_STATUS_DISCHARGING);
   battery_state_msg.set__power_supply_health(BatteryState::POWER_SUPPLY_HEALTH_GOOD);
   battery_state_msg.set__power_supply_technology(BatteryState::POWER_SUPPLY_TECHNOLOGY_LION);
   battery_state_msg.set__present(true);
 
   for (int i = 0; i < 16; i++) {
-    battery_state_msg.cell_voltage.push_back(static_cast<float>(msg->bms_state.cell_vol[i]));
+    battery_state_msg.cell_voltage.push_back(nan);
     battery_state_msg.cell_temperature.push_back(nan);
   }
 
