@@ -57,9 +57,6 @@
 #include <tf2_ros/transform_listener.h>
 
 #include <sensor_msgs/point_cloud2_iterator.hpp>
-#include <sensor_msgs/image_encodings.hpp>
-
-#include <image_transport/image_transport.hpp>
 
 #include <dua_interfaces/msg/command_result_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
@@ -67,7 +64,6 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/battery_state.hpp>
-#include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -75,7 +71,6 @@
 #include <unitree_api/msg/request.hpp>
 #include <unitree_go/msg/action_id.hpp>
 #include <unitree_go/msg/bms_state.hpp>
-#include <unitree_go/msg/go2_front_video_data.hpp>
 #include <unitree_go/msg/imu_state.hpp>
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/sport_mode_state.hpp>
@@ -152,7 +147,6 @@ private:
   /* Topic subscriptions callback groups. */
   rclcpp::CallbackGroup::SharedPtr cmd_vel_callback_group_;
   rclcpp::CallbackGroup::SharedPtr foot_position_callback_group_;
-  rclcpp::CallbackGroup::SharedPtr front_video_data_callback_group_;
   rclcpp::CallbackGroup::SharedPtr lowstate_callback_group_;
   rclcpp::CallbackGroup::SharedPtr point_cloud_callback_group_;
   rclcpp::CallbackGroup::SharedPtr odom_callback_group_;
@@ -163,7 +157,6 @@ private:
   /* Topic subscriptions. */
   rclcpp::Subscription<Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::Subscription<PointCloud2>::SharedPtr foot_position_sub_;
-  rclcpp::Subscription<Go2FrontVideoData>::SharedPtr front_video_data_sub_;
   rclcpp::Subscription<LowState>::SharedPtr lowstate_sub_;
   rclcpp::Subscription<Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<PointCloud2>::SharedPtr point_cloud_sub_;
@@ -174,7 +167,6 @@ private:
   /* Topic subscription callbacks. */
   void cmd_vel_callback(const Twist::SharedPtr msg);
   void foot_position_callback(const PointCloud2::SharedPtr msg);
-  void front_video_data_callback(const Go2FrontVideoData::SharedPtr msg);
   void lowstate_callback(const LowState::SharedPtr msg);
   void odometry_callback(const Odometry::SharedPtr msg);
   void point_cloud_callback(const PointCloud2::SharedPtr msg);
@@ -192,9 +184,6 @@ private:
   rclcpp::Publisher<PointCloud2>::SharedPtr point_cloud_pub_;
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Request>::SharedPtr sport_request_pub_;
-
-  /* image_transport publishers. */
-  std::shared_ptr<image_transport::Publisher> front_image_pub_;
 
   /* Service servers. */
   rclcpp::Service<Action>::SharedPtr actions_srv_;

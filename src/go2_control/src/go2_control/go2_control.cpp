@@ -52,11 +52,7 @@ Go2Control::Go2Control(const rclcpp::NodeOptions & node_options)
  * @brief Go2 Control node destructor.
  */
 Go2Control::~Go2Control()
-{
-  // Destroy image_transport publishers
-  front_image_pub_->shutdown();
-  front_image_pub_.reset();
-}
+{}
 
 /**
  * @brief Routine to initialize atomic members.
@@ -78,8 +74,6 @@ void Go2Control::init_cgroups()
   cmd_vel_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
   foot_position_callback_group_ = this->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive);
-  front_video_data_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
   lowstate_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
@@ -123,18 +117,6 @@ void Go2Control::init_subscriptions()
       this,
       std::placeholders::_1),
     foot_position_options);
-
-  // frontvideostream
-  rclcpp::SubscriptionOptions front_video_data_options{};
-  front_video_data_options.callback_group = front_video_data_callback_group_;
-  front_video_data_sub_ = this->create_subscription<Go2FrontVideoData>(
-    "/frontvideostream",
-    dua_qos::Reliable::get_image_qos(),
-    std::bind(
-      &Go2Control::front_video_data_callback,
-      this,
-      std::placeholders::_1),
-    front_video_data_options);
 
   // lowstate
   rclcpp::SubscriptionOptions lowstate_options{};
@@ -275,13 +257,6 @@ void Go2Control::init_publishers()
   sport_request_pub_ = this->create_publisher<Request>(
     "/api/sport/request",
     dua_qos::Reliable::get_datum_qos());
-
-  // front/image_rect_color
-  front_image_pub_ = std::make_shared<image_transport::Publisher>(
-    image_transport::create_publisher(
-      this,
-      "~/front/image_rect_color",
-      dua_qos::Reliable::get_image_qos().get_rmw_qos_profile()));
 }
 
 /**

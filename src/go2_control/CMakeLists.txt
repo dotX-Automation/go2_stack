@@ -25,7 +25,6 @@ find_package(dua_node REQUIRED)
 find_package(dua_qos_cpp REQUIRED)
 find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(geometry_msgs REQUIRED)
-find_package(image_transport REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(params_manager REQUIRED)
 find_package(pose_kit REQUIRED)
@@ -67,7 +66,6 @@ ament_target_dependencies(go2_control
   dua_node
   dua_qos_cpp
   geometry_msgs
-  image_transport
   nav_msgs
   params_manager
   pose_kit

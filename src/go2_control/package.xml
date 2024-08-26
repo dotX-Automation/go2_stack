@@ -14,7 +14,6 @@
   <depend>dua_node</depend>
   <depend>dua_qos_cpp</depend>
   <depend>geometry_msgs</depend>
-  <depend>image_transport</depend>
   <depend>nav_msgs</depend>
   <depend>params_manager</depend>
   <depend>pose_kit</depend>
