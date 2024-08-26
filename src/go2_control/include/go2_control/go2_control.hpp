@@ -287,7 +287,7 @@ private:
     const std::string & source_frame,
     const rclcpp::Time & time,
     double tf_timeout_sec);
-  void parse_battery_state(const BmsState & msg);
+  void parse_battery_state(const LowState::SharedPtr msg);
 };
 
 } // go2_control

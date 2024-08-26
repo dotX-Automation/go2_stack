@@ -149,7 +149,7 @@ void Go2Control::lowstate_callback(const LowState::SharedPtr msg)
   joint_states_pub_->publish(joint_state_msg);
 
   // Battery state
-  parse_battery_state(msg->bms_state);
+  parse_battery_state(msg);
 }
 
 /**
