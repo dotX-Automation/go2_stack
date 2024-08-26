@@ -220,9 +220,16 @@ void Go2Control::point_cloud_callback(const PointCloud2::SharedPtr msg)
     Eigen::MatrixXd cloud_mat = cloud_to_matrix(msg, true, intensities);
 
     // Transform the cloud into the LiDAR frame
+    Eigen::Isometry3d body_to_lidar = tf2::transformToEigen(
+      get_tf(
+        frame_prefix_ + "utlidar",
+        body_frame_,
+        msg->header.stamp,
+        tf_timeout_));
     state_lock_.lock();
-    Eigen::Matrix4d pc_transform = pose_robot_.get_isometry().inverse().matrix();
+    Eigen::Isometry3d robot_lidar_tf = pose_robot_.get_isometry() * body_to_lidar;
     state_lock_.unlock();
+    Eigen::Matrix4d pc_transform = robot_lidar_tf.matrix().inverse();
     Eigen::MatrixXd cloud_mat_comp = pc_transform * cloud_mat;
 
     // Write the new cloud into a message and publish it
@@ -251,10 +258,6 @@ void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
     init_pose_ok_.store(true, std::memory_order_release);
   }
   pose_kit::Pose pose_curr_robot(pose_msg_robot);
-  pose_robot_ = pose_curr_robot;
-  Header robot_header = pose_msg_robot.header;
-  robot_header.set__frame_id(frame_prefix_ + "go2_odom");
-  pose_robot_.set_header(robot_header);
   Eigen::Isometry3d pose_curr_robot_iso = pose_curr_robot.get_isometry();
   Eigen::Isometry3d pose_curr_iso = init_pose_inv_iso_ * pose_curr_robot_iso;
   pose_ = pose_kit::Pose(
