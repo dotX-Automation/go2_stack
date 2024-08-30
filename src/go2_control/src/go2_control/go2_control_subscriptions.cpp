@@ -79,26 +79,6 @@ void Go2Control::cmd_vel_callback(const Twist::SharedPtr msg)
 }
 
 /**
- * @brief Republishes foot position data.
- *
- * @param msg Message to parse.
- */
-void Go2Control::foot_position_callback(const PointCloud2::SharedPtr msg)
-{
-  // Read the cloud into a matrix
-  Eigen::MatrixXd cloud_mat = cloud_to_matrix(msg);
-
-  // Transform the cloud into the robot's true local frame
-  Eigen::MatrixXd cloud_mat_comp = init_pose_inv_iso_.matrix() * cloud_mat;
-
-  // Write the new cloud into a message and publish it
-  PointCloud2::SharedPtr foot_position_msg = matrix_to_cloud(cloud_mat_comp);
-  foot_position_msg->header.set__stamp(msg->header.stamp);
-  foot_position_msg->header.frame_id = local_frame_;
-  foot_position_pub_->publish(*foot_position_msg);
-}
-
-/**
  * @brief Republishes low-level robot state data.
  *
  * @param msg Message to parse.

@@ -73,8 +73,6 @@ void Go2Control::init_cgroups()
   // Topic subscriptions
   cmd_vel_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
-  foot_position_callback_group_ = this->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive);
   lowstate_callback_group_ = this->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
   odom_callback_group_ = this->create_callback_group(
@@ -105,18 +103,6 @@ void Go2Control::init_subscriptions()
       this,
       std::placeholders::_1),
     cmd_vel_options);
-
-  // foot_position
-  rclcpp::SubscriptionOptions foot_position_options{};
-  foot_position_options.callback_group = foot_position_callback_group_;
-  foot_position_sub_ = this->create_subscription<PointCloud2>(
-    "/utlidar/foot_position",
-    dua_qos::Reliable::get_scan_qos(),
-    std::bind(
-      &Go2Control::foot_position_callback,
-      this,
-      std::placeholders::_1),
-    foot_position_options);
 
   // lowstate
   rclcpp::SubscriptionOptions lowstate_options{};
@@ -217,11 +203,6 @@ void Go2Control::init_publishers()
   battery_state_pub_ = this->create_publisher<BatteryState>(
     "~/battery_state",
     dua_qos::Reliable::get_datum_qos());
-
-  // foot_position
-  foot_position_pub_ = this->create_publisher<PointCloud2>(
-    "~/foot_position",
-    dua_qos::Reliable::get_scan_qos());
 
   // imu
   imu_pub_ = this->create_publisher<Imu>(

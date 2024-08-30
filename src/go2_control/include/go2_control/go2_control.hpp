@@ -146,7 +146,6 @@ private:
 
   /* Topic subscriptions callback groups. */
   rclcpp::CallbackGroup::SharedPtr cmd_vel_callback_group_;
-  rclcpp::CallbackGroup::SharedPtr foot_position_callback_group_;
   rclcpp::CallbackGroup::SharedPtr lowstate_callback_group_;
   rclcpp::CallbackGroup::SharedPtr point_cloud_callback_group_;
   rclcpp::CallbackGroup::SharedPtr odom_callback_group_;
@@ -156,7 +155,6 @@ private:
 
   /* Topic subscriptions. */
   rclcpp::Subscription<Twist>::SharedPtr cmd_vel_sub_;
-  rclcpp::Subscription<PointCloud2>::SharedPtr foot_position_sub_;
   rclcpp::Subscription<LowState>::SharedPtr lowstate_sub_;
   rclcpp::Subscription<Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<PointCloud2>::SharedPtr point_cloud_sub_;
@@ -166,7 +164,6 @@ private:
 
   /* Topic subscription callbacks. */
   void cmd_vel_callback(const Twist::SharedPtr msg);
-  void foot_position_callback(const PointCloud2::SharedPtr msg);
   void lowstate_callback(const LowState::SharedPtr msg);
   void odometry_callback(const Odometry::SharedPtr msg);
   void point_cloud_callback(const PointCloud2::SharedPtr msg);
@@ -176,7 +173,6 @@ private:
 
   /* Topic publishers. */
   rclcpp::Publisher<BatteryState>::SharedPtr battery_state_pub_;
-  rclcpp::Publisher<PointCloud2>::SharedPtr foot_position_pub_;
   rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::Publisher<JointState>::SharedPtr joint_states_pub_;
   rclcpp::Publisher<Request>::SharedPtr obstacle_avoidance_request_pub_;
