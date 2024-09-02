@@ -127,7 +127,7 @@ params:
 
   use_utlidar:
     type: bool
-    default_value: false
+    default_value: true
     description: "Activates front LiDAR and republishes data."
     constraints: "Cannot be changed."
     read_only: true
