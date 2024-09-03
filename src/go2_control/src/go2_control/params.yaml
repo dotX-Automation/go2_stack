@@ -125,13 +125,6 @@ params:
     read_only: false
     validator: validate_twist_covariance
 
-  use_utlidar:
-    type: bool
-    default_value: true
-    description: "Activates front LiDAR and republishes data."
-    constraints: "Cannot be changed."
-    read_only: true
-
   velocity_control_vhorz_max:
     type: double
     default_value: 2.0

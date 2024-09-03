@@ -117,30 +117,16 @@ void Go2Control::init_subscriptions()
     lowstate_options);
 
   // cloud
-  bool use_utlidar = this->get_parameter("use_utlidar").as_bool();
-  rclcpp::Publisher<String>::SharedPtr utlidar_switch_pub = this->create_publisher<String>(
-    "/utlidar/switch",
-    dua_qos::Reliable::get_datum_qos());
-  if (use_utlidar) {
-    String msg;
-    msg.set__data("ON");
-    utlidar_switch_pub->publish(msg);
-
-    rclcpp::SubscriptionOptions point_cloud_options{};
-    point_cloud_options.callback_group = point_cloud_callback_group_;
-    point_cloud_sub_ = this->create_subscription<PointCloud2>(
-      "/utlidar/cloud",
-      dua_qos::Reliable::get_scan_qos(),
-      std::bind(
-        &Go2Control::point_cloud_callback,
-        this,
-        std::placeholders::_1),
-      point_cloud_options);
-  } else {
-    String msg;
-    msg.set__data("OFF");
-    utlidar_switch_pub->publish(msg);
-  }
+  rclcpp::SubscriptionOptions point_cloud_options{};
+  point_cloud_options.callback_group = point_cloud_callback_group_;
+  point_cloud_sub_ = this->create_subscription<PointCloud2>(
+    "/utlidar/cloud",
+    dua_qos::Reliable::get_scan_qos(),
+    std::bind(
+      &Go2Control::point_cloud_callback,
+      this,
+      std::placeholders::_1),
+    point_cloud_options);
 
   // robot_odom
   rclcpp::SubscriptionOptions odom_options{};

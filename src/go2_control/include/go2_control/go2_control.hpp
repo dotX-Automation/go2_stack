@@ -68,7 +68,6 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/header.hpp>
-#include <std_msgs/msg/string.hpp>
 #include <unitree_api/msg/request.hpp>
 #include <unitree_go/msg/action_id.hpp>
 #include <unitree_go/msg/bms_state.hpp>
