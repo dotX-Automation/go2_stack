@@ -62,6 +62,14 @@ params:
     read_only: false
     var_name: kill_switch_release_code_
 
+  lock_altitude:
+    type: bool
+    default_value: false
+    description: "Locks Z position to 0.33 m (robot's height) when armed."
+    constraints: "Useful for planar navigation when localizing the robot w.r.t. its starting point."
+    read_only: false
+    var_name: lock_altitude_
+
   operations_stabilization_time:
     type: integer
     default_value: 1000

@@ -149,6 +149,12 @@ void Go2Control::odometry_callback(const Odometry::SharedPtr msg)
     j++;
   }
 
+  // Lock altitude if requested
+  if (lock_altitude_ && armed_.load(std::memory_order_acquire)) {
+    odom_msg.pose.pose.position.set__z(0.33);
+    odom_msg.twist.twist.linear.set__z(0.0);
+  }
+
   // Publish message
   odom_pub_->publish(odom_msg);
 }
@@ -186,6 +192,10 @@ void Go2Control::pose_callback(const PoseStamped::SharedPtr msg)
   pose_kit::Pose pose_curr_robot(pose_msg_robot);
   Eigen::Isometry3d pose_curr_robot_iso = pose_curr_robot.get_isometry();
   Eigen::Isometry3d pose_curr_iso = init_pose_inv_iso_ * pose_curr_robot_iso;
+  if (lock_altitude_ && armed_.load(std::memory_order_acquire)) {
+    // Lock altitude
+    pose_curr_iso.translation().z() = 0.33;
+  }
   pose_ = pose_kit::Pose(
     pose_curr_iso.translation(),
     Eigen::Quaterniond(pose_curr_iso.rotation()),

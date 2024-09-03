@@ -15,6 +15,7 @@
     init_obstacle_avoidance: true
     kill_switch_code: 16
     kill_switch_release_code: 32
+    lock_altitude: false
     operations_stabilization_time: 1000
     operations_timeout: 1500
     pose_covariance:

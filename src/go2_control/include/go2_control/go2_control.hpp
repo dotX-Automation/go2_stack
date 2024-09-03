@@ -242,6 +242,7 @@ private:
   std::vector<double> imu_covariance_ = {};
   int64_t kill_switch_code_ = 0;
   int64_t kill_switch_release_code_ = 0;
+  bool lock_altitude_ = false;
   int64_t operations_stabilization_time_ = 0;
   int64_t operations_timeout_ = 0;
   std::vector<double> pose_covariance_ = {};
