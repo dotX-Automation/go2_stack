@@ -65,7 +65,7 @@ params:
   lock_altitude:
     type: bool
     default_value: false
-    description: "Locks Z position to 0.33 m (robot's height) when armed."
+    description: "Locks Z position to 0.25 m (robot's height) when armed, 0.0 m when disarmed (w.r.t. robot's center of mass when disarmed/on the floor)."
     constraints: "Useful for planar navigation when localizing the robot w.r.t. its starting point."
     read_only: false
     var_name: lock_altitude_
