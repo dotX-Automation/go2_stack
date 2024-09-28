@@ -68,6 +68,7 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/header.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <unitree_api/msg/request.hpp>
 #include <unitree_go/msg/action_id.hpp>
 #include <unitree_go/msg/bms_state.hpp>
@@ -134,6 +135,7 @@ private:
   void init_subscriptions();
   void init_tf2();
   void init_publishers();
+  void init_timers();
   void init_services();
   void init_actions();
 
@@ -180,6 +182,13 @@ private:
   rclcpp::Publisher<PointCloud2>::SharedPtr point_cloud_pub_;
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Request>::SharedPtr sport_request_pub_;
+  rclcpp::Publisher<String>::SharedPtr utlidar_switch_pub_;
+
+  /* Timers. */
+  rclcpp::TimerBase::SharedPtr utlidar_switch_timer_;
+
+  /* Timer callbacks. */
+  void utlidar_switch_timer_callback();
 
   /* Service servers. */
   rclcpp::Service<Action>::SharedPtr actions_srv_;
@@ -235,6 +244,7 @@ private:
   Eigen::Isometry3d init_pose_inv_iso_{};
   uint8_t sportmode_last_ = 0;
   bool stopped_ = false;
+  int utlidar_switch_count_ = 0;
 
   /* Node parameters. */
   int64_t actions_sleep_time_ = 0;

@@ -39,6 +39,7 @@ Go2Control::Go2Control(const rclcpp::NodeOptions & node_options)
   init_subscriptions();
   init_tf2();
   init_publishers();
+  init_timers();
   init_services();
   init_actions();
 
@@ -238,6 +239,24 @@ void Go2Control::init_publishers()
   sport_request_pub_ = this->create_publisher<Request>(
     "/api/sport/request",
     dua_qos::Reliable::get_datum_qos());
+
+  // utlidar/switch
+  utlidar_switch_pub_ = this->create_publisher<String>(
+    "/utlidar/switch",
+    dua_qos::Reliable::get_datum_qos());
+}
+
+/**
+ * @brief Routine to initialize timers.
+ */
+void Go2Control::init_timers()
+{
+  // utlidar_switch
+  utlidar_switch_timer_ = this->create_wall_timer(
+    std::chrono::milliseconds(1000),
+    std::bind(
+      &Go2Control::utlidar_switch_timer_callback,
+      this));
 }
 
 /**
